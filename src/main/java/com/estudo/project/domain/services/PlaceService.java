@@ -3,6 +3,8 @@ package com.estudo.project.domain.services;
 import com.estudo.project.domain.dtos.PlaceRequestDTO;
 import com.estudo.project.domain.entities.Place;
 import com.estudo.project.domain.repositories.PlaceRepository;
+import com.estudo.project.exceptions.DuplicatePlaceException;
+import com.estudo.project.exceptions.PlaceNotFoundException;
 import com.github.slugify.Slugify;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -20,11 +22,21 @@ public class PlaceService {
     }
 
     public Mono<Place> create(PlaceRequestDTO placeRequestDTO) {
-        var place = new Place(
-                placeRequestDTO.name(), slugify.slugify(placeRequestDTO.name()),
-                placeRequestDTO.state());
 
-        return placeRepository.save(place);
+        return placeRepository.findByName(placeRequestDTO.name())
+                .hasElements()
+                .flatMap(exists -> {
+                    if (exists) {
+                        return Mono.error(new DuplicatePlaceException
+                                ("Você já registrou este lugar com o nome: " + placeRequestDTO.name()));
+                    } else {
+                        var place = new Place(
+                                placeRequestDTO.name(), slugify.slugify(placeRequestDTO.name()),
+                                placeRequestDTO.state());
+
+                        return placeRepository.save(place);
+                    }
+                });
     }
 
     public Flux<Place> findAllPlaces() {
@@ -32,8 +44,10 @@ public class PlaceService {
     }
 
     public Mono<Void> deletePlaceById(Long id) {
-       return placeRepository.findById(id).switchIfEmpty(Mono.error(new RuntimeException("Place não encontrada")))
+        return placeRepository.findById(id)
                 .flatMap(place -> placeRepository.delete(place))
-                .doOnError(throwable -> {throw new RuntimeException("Error em deletar o place");});
+                .doOnError(throwable -> {
+                    throw new PlaceNotFoundException("O lugar não foi encontrado");
+                });
     }
 }
