@@ -4,6 +4,7 @@ import com.estudo.project.domain.dtos.PlaceRequestDTO;
 import com.estudo.project.domain.dtos.PlaceResponseDTO;
 import com.estudo.project.domain.entities.Place;
 import com.estudo.project.domain.services.PlaceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class PlaceController {
     private PlaceService placeService;
 
     @PostMapping
-    public ResponseEntity<Mono<PlaceResponseDTO>> create(@RequestBody PlaceRequestDTO place) {
+    public ResponseEntity<Mono<PlaceResponseDTO>> create(@RequestBody @Valid PlaceRequestDTO place) {
         var responsePlace = placeService.create(place).map(PlaceMapper::PlaceToResponse);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responsePlace);

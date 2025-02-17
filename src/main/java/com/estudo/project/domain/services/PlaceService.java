@@ -32,7 +32,7 @@ public class PlaceService {
                     } else {
                         var place = new Place(
                                 placeRequestDTO.name(), slugify.slugify(placeRequestDTO.name()),
-                                placeRequestDTO.state());
+                                placeRequestDTO.state(), placeRequestDTO.grade());
 
                         return placeRepository.save(place);
                     }
