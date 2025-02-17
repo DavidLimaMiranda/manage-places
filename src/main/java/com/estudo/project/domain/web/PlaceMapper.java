@@ -5,7 +5,7 @@ import com.estudo.project.domain.entities.Place;
 
 public class PlaceMapper {
     public static PlaceResponseDTO PlaceToResponse(Place place) {
-        return new PlaceResponseDTO(place.name, place.slug, place.state,
+        return new PlaceResponseDTO(place.name, place.slug, place.state, place.grade,
                                     place.createdAt, place.updatedAt);
     }
 }

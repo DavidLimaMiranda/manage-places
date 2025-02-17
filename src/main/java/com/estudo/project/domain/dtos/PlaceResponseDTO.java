@@ -6,6 +6,7 @@ public record PlaceResponseDTO(
         String name,
         String slug,
         String state,
+        int grade,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
